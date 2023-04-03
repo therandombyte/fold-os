@@ -1,4 +1,5 @@
 #include "types.h"
+#include "gdt.h"
 
 /*  get the pointer to a memory location, 
 	leave the high byte as is, combine that with string to be printed
@@ -23,7 +24,7 @@ extern "C" void callConstructors()
 */
 extern "C" void kernelMain(void* multiboot_structure, uint32_t magicNumber) {
 	printf("This is Fold-OS!!");
-
+	GlobalDescriptorTable gdt;
 	while(1);
 }
 
@@ -51,7 +52,15 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicNumber) {
 1.	creating iso target in makefile
 	means adding grub-rescue and virtualbox
 	got error: grub-mkrescue: error: mformat invocation failed
-	solution: apt install mtools 
+	solution: apt install mtools
+
+	VIDEO4:
+1.	GDT: 
+	Single code and data segment implemented in the descriptor table
+	there should be two, one for kernel and one for user mode.
+2.	GDT should have function to return offset of DS and CS
+3. 	The segement selector (entries in GDT) should return
+	the base and limit offset
 */
 
 
