@@ -58,7 +58,8 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint3
 	target[5] = flags;
 }
 
-// 4) On requesting the base and limit, the value has to be
+// 4) Get GDT entries
+// On requesting the base and limit, the value has to be
 // rearranged and returned 
 uint32_t GlobalDescriptorTable::SegmentDescriptor::Base()
 {

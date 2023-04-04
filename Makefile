@@ -2,7 +2,7 @@ GPPPARAMS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-excep
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objects = loader.o gdt.o kernel.o
+objects = loader.o gdt.o port.o kernel.o
 
 %.o: %.cpp # create obj files from cpp files
 	g++ $(GPPPARAMS) -o $@ -c $<
@@ -33,3 +33,7 @@ foldKernel.iso: foldKernel.bin
 
 run: foldKernel.iso
 	VirtualBoxVM --startvm "Fold" &
+
+.PHONY: clean
+clean:
+	rm -f $(objects) foldKernel.bin foldKernel.iso
