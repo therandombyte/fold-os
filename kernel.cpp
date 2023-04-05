@@ -103,7 +103,12 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicNumber) {
 3.	Add "clean" target and enhance printf to print multiple lines
 
 	VIDEO6:
-1.	IDT
+1.	IDT Problem: When an Interrupt is received, the interrupt 
+	number needs to be put in a Stack, but its not safe to use it
+	yet by C++, so its better to use Assembly for this.
+2.	Different interrupts needs different handlers, are we gonna write 
+	them all in assembly. No need, use the macro to generate them
+3.	
 */
 
 
