@@ -1,5 +1,6 @@
 #include "types.h"
 #include "gdt.h"
+#include "interrupts.h"
 
 /*  get the pointer to a memory location, 
 	leave the high byte as is, combine that with string to be printed
@@ -59,6 +60,13 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicNumber) {
 	printf("This is Fold-OS!!\n");
 	printf("Version 0.1");
 	GlobalDescriptorTable gdt;
+	InterruptManager interrupts(&gdt);
+
+	// activate all hardware drivers here 
+	// and then activate the interrupts from pic
+
+	interrupts.Activate(); 
+
 	while(1);
 }
 
