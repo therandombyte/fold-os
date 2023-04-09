@@ -2,11 +2,34 @@
 
 void printf(char* str);
 
+// --------------------- Handler ---------------------------
+
+// constructor will put itself (interrupthandler) into array of interrupt manager
+InterruptHandler::InterruptHandler(uint8_t interruptNumber, InterruptManager* interruptManager)
+{
+	this->interruptNumber = interruptNumber;
+	this->interruptManager = interruptManager;
+	interruptManager->handlers[interruptNumber] = this;
+}
+
+InterruptHandler::~InterruptHandler()
+{
+	if(interruptManager->handlers[interruptNumber] == this)
+		interruptManager->handlers[interruptNumber] = 0;
+}
+
+uint32_t InterruptHandler::HandleInterrupt(uint32_t esp)
+{
+	return esp;
+}
+
+// --------------------- Interrupt Manager ---------------------------
 
 InterruptManager::GateDescriptor InterruptManager::interruptDescriptorTable[256];
 
 InterruptManager* InterruptManager::ActiveInterruptManager = 0;
 
+// --------------- IDT Setter ------------
 // 1) assign inputs to struct
 void InterruptManager::SetInterruptDescriptorTableEntry(
 	uint8_t interruptNumber, uint16_t gdt_codeSegmentSelectorOffset,
@@ -23,10 +46,13 @@ void InterruptManager::SetInterruptDescriptorTableEntry(
 
 
 }
+
+// --------------- Constructor ------------
 // 2) set all interrupts handler to IgnoreInterruptRequest()
 //    then declare two handlers for timer and keyboard
 // 	  then tell processot to load the IDT
 // 4) Instantiate ports also in constructor
+// 5) set all interrupt handlers to 0
 InterruptManager::InterruptManager(GlobalDescriptorTable* gdt)
 : picMasterCommand(0x20), 
   picMasterData(0x21), 
@@ -35,8 +61,11 @@ InterruptManager::InterruptManager(GlobalDescriptorTable* gdt)
 {
 	uint16_t CodeSegment = gdt->CodeSegmentSelector();
 	const uint8_t IDT_INTERRUPT_GATE = 0xE;
-	for(uint8_t i = 255; i > 0; --i)
+	for(uint8_t i = 255; i > 0; --i) 
+	{
+		handlers[i] = 0;
 		SetInterruptDescriptorTableEntry(i, CodeSegment, &IgnoreInterruptRequest, 0, IDT_INTERRUPT_GATE);
+	}
 		
 	SetInterruptDescriptorTableEntry(0x20, CodeSegment, &HandleInterruptRequest0x00, 0, IDT_INTERRUPT_GATE);
 	SetInterruptDescriptorTableEntry(0x21, CodeSegment, &HandleInterruptRequest0x01, 0, IDT_INTERRUPT_GATE);
@@ -69,6 +98,7 @@ InterruptManager::~InterruptManager()
 
 }
 
+// --------------- Activate/Deactiviate  ------------
 // 3) tell pic to start sending interrupts
 void InterruptManager::Activate()
 {
@@ -85,12 +115,11 @@ void InterruptManager::Deactivate()
 }
 
 
-
+// --------------- Handler Part ------------
 // will be called from the assembly program
 // will invoke the non-static DoHandleInterrupt method
 uint32_t InterruptManager::handleInterrupt(uint8_t interruptNumber, uint32_t esp)
 {
-	printf(" INTERRUPT MAIN");
 	if(ActiveInterruptManager != 0)
 	{
 		return ActiveInterruptManager->DoHandleInterrupt(interruptNumber, esp);
@@ -100,8 +129,20 @@ uint32_t InterruptManager::handleInterrupt(uint8_t interruptNumber, uint32_t esp
 
 uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp)
 {
-	if(interruptNumber != 0x20)
-		printf("  TIMER");
+	// for the received interrupt, if theres a handler, lets call it
+	if(handlers[interruptNumber] != 0)
+	{
+		handlers[interruptNumber]->HandleInterrupt(esp);
+	}
+	else if(interruptNumber != 0x20)
+	{
+		char* foo = " UNHANDLED INTERRUPT 0x00";
+		char* hex = "0123456789ABCDEF";
+		foo[22] = hex[(interruptNumber >> 4) & 0x0F];
+		foo[23] = hex[interruptNumber & 0x0F];
+		printf(foo);
+	}
+		
 		
 	if(0x20 <= interruptNumber && interruptNumber < 0x30)
 	{
@@ -109,6 +150,5 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t e
 		if(0x28 <= interruptNumber)
 			picSlaveCommand.Write(0x20);
 	}
-	printf(" DO INTERRUPT");
 	return esp;
 }

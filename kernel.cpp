@@ -122,6 +122,10 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicNumber) {
 2.	From ASM, we go back to a static C++ function, we only can get a 
 	static pointer to InterruptManager which has port members to talk
 	bac to pic. 
+3.	OOPS way is to have different handlers/drivers for diff interrupts
+	Need to define interface for drivers, which IntManager can use
+4.	PIC demands the content to be read before accepting any more
+	inputs from kernel
 */
 
 

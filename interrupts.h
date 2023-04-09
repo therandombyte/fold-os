@@ -1,17 +1,38 @@
-#ifndef __INTERRUPTMANAGER_H
-#define __INTERRUPTMANAGER_H
+#ifndef __INTERRUPTS_H
+#define __INTERRUPTS_H
 
 #include "types.h"
 #include "port.h"
 #include "gdt.h"
 
+class InterruptManager;
+// --------------------- Handler ---------------------------
+class InterruptHandler
+{
+protected:
+	uint8_t interruptNumber;   // will know its interrupt number
+	InterruptManager* interruptManager; 
+
+	InterruptHandler(uint8_t interruptNumber, InterruptManager* interruptManager);
+	~InterruptHandler();
+public:
+	uint32_t HandleInterrupt(uint32_t esp);
+};
+
+
+// --------------------- Interrupt Manager ---------------------------
 // not the IDT but a manager of it?
+// a) has a struct called GateDescriptor which are entries of IDT
+// b) have an array of Gate Descriptors that is the IDT
+// c) have an array of handlers to different interrupts
 class InterruptManager 
 {
+friend class InterruptHandler;
 protected:
 	// 4) a static pointer to be called from C++ static function
 	// 	  thats invoked by assembler
 	static InterruptManager* ActiveInterruptManager;
+	InterruptHandler* handlers[256];      // <-- handlers landing inside manager
 
 	struct GateDescriptor
 	{
