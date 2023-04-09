@@ -57,7 +57,7 @@ extern "C" void callConstructors()
    which we should accept as params to our main function
 */
 extern "C" void kernelMain(void* multiboot_structure, uint32_t magicNumber) {
-	printf("This is Fold-OS!!\n");
+	printf("This is Fold-OS!!");
 	printf("Version 0.1");
 	GlobalDescriptorTable gdt;
 	InterruptManager interrupts(&gdt);
@@ -116,7 +116,12 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicNumber) {
 	yet by C++, so its better to use Assembly for this.
 2.	Different interrupts needs different handlers, are we gonna write 
 	them all in assembly. No need, use the macro to generate them
-3.	
+
+	VIDEO7:
+1.	Continue to tell pic to send next interru pt
+2.	From ASM, we go back to a static C++ function, we only can get a 
+	static pointer to InterruptManager which has port members to talk
+	bac to pic. 
 */
 
 

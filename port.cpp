@@ -2,7 +2,7 @@
 
 Port::Port(uint16_t portnumber)
 {
-	this->portnumber;
+	this->portnumber = portnumber;
 }
 Port::~Port()
 {
