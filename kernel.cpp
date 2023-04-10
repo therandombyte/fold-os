@@ -1,6 +1,7 @@
 #include "types.h"
 #include "gdt.h"
 #include "interrupts.h"
+#include "keyboard.h"
 
 /*  get the pointer to a memory location, 
 	leave the high byte as is, combine that with string to be printed
@@ -64,6 +65,7 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicNumber) {
 
 	// activate all hardware drivers here 
 	// and then activate the interrupts from pic
+	KeyboardDriver keyboard(&interrupts);
 
 	interrupts.Activate(); 
 

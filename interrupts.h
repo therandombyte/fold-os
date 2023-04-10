@@ -16,7 +16,8 @@ protected:
 	InterruptHandler(uint8_t interruptNumber, InterruptManager* interruptManager);
 	~InterruptHandler();
 public:
-	uint32_t HandleInterrupt(uint32_t esp);
+	// keyboard and others will override this
+	virtual uint32_t HandleInterrupt(uint32_t esp);
 };
 
 
